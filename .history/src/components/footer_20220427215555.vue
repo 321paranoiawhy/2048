@@ -1,0 +1,14 @@
+<template>
+    <!-- https://www.rapidtables.com/web/html/html-codes/html-code-copyright.html -->
+    <!-- &copy; -->
+    <!-- &#9400; -->
+    <footer>Creater by Vue 3 & VS Code. &#9400; 2022</footer>
+</template>
+
+<script>
+export default {
+    name: "Footer",
+};
+</script>
+
+<style lang="scss"></style>
