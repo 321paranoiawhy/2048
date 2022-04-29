@@ -1,0 +1,34 @@
+<template>
+    <div class="back">
+        <div>
+            <img src="../assets/images/IcBaselineArrowBackIos.svg" alt="" />
+            <span>Back to Home</span>
+        </div>
+        <div>
+            <span>Forward to About</span>
+            <img src="../assets/images/IcBaselineArrowForwardIos.svg" alt="" />
+        </div>
+    </div>
+    <h1>Get Started</h1>
+</template>
+
+<style lang="scss">
+$width-height: 32px;
+div .back {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(50vw);
+    & div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    &:first-child {
+        margin-left: 100px;
+    }
+    & :last-child {
+        margin-right: 100px;
+    }
+}
+</style>

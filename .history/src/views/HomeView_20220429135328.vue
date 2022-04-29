@@ -1,0 +1,1091 @@
+<template>
+    <h2>2048</h2>
+    <h3>Not Just 2048</h3>
+    <div class="header">
+        <!-- Get Started -->
+        <div>
+            <img
+                src="../assets/images/start.svg"
+                alt="Get Started"
+                @click="gotoGetStarted"
+            />
+            <button @click="gotoGetStarted">Get Started</button>
+        </div>
+        <span class="span-divider"></span>
+        <!-- GitHub -->
+        <div>
+            <a
+                href="https://github.com/321paranoiawhy/2048-Vue"
+                target="_blank"
+            >
+                <img
+                    src="../assets/images/TeenyiconsGithubOutline.svg"
+                    alt="Github"
+                />
+            </a>
+            <a
+                href="https://github.com/321paranoiawhy/2048-Vue"
+                target="_blank"
+            >
+                <button>GitHub</button>
+            </a>
+        </div>
+        <span class="span-divider"></span>
+        <!-- Blog -->
+        <div>
+            <a href="https://321paranoiawhy.github.io/" target="_blank">
+                <img src="../assets/images/Fa6SolidBlog.svg" alt="Blog" />
+            </a>
+            <a href="https://321paranoiawhy.github.io/" target="_blank">
+                <button>Blog</button>
+            </a>
+        </div>
+        <span class="span-divider"></span>
+        <!-- Email -->
+        <div>
+            <a href="mailto:paranoiawhy@gmail.com" target="_blank">
+                <img
+                    src="../assets/images/TeenyiconsEnvelopeOutline.svg"
+                    alt="Email"
+                />
+            </a>
+            <a href="mailto:paranoiawhy@gmail.com" target="_blank">
+                <button>Email</button>
+            </a>
+        </div>
+        <span class="span-divider"></span>
+        <!-- About -->
+        <div>
+            <img
+                src="../assets/images/about.svg"
+                alt="about"
+                @click="gotoAbout"
+            />
+            <button @click="gotoAbout">About</button>
+        </div>
+        <span class="span-divider"></span>
+        <!-- Q & A -->
+        <div>
+            <img
+                src="../assets/images/question-answer-line.svg"
+                alt="Question & Answer"
+                @click="gotoQA"
+            />
+            <button @click="gotoQA">Q & A</button>
+        </div>
+    </div>
+    <div class="features">
+        <img
+            src="../assets/images/CarbonUndo.svg"
+            alt="Undo"
+            @click="undo()"
+            :class="{ native: lastFlag }"
+        />
+        <img
+            src="../assets/images/CarbonRedo.svg"
+            alt="redo"
+            @click="redo()"
+            :class="{ native: nextFlag }"
+        />
+        <img
+            src="../assets/images/CarbonReset.svg"
+            alt="Reset"
+            @click="reset()"
+        />
+        <img
+            src="../assets/images/AntDesignPoweroffOutlined.svg"
+            alt="exit"
+            @click="exit()"
+        />
+        <span class="undo" @click="undo()">Undo</span>
+        <span class="redo" @click="redo()">Redo</span>
+        <span class="replay" @click="reset()">Replay</span>
+        <span class="exit" @click="exit()">Exit</span>
+    </div>
+    <div class="steps-scores">
+        <div>Steps</div>
+        <span>{{ steps }}</span>
+        <div>Scores</div>
+        <span>{{ scores }}</span>
+    </div>
+    <div class="up">
+        <div class="icon">
+            <img
+                src="../assets/images/MdiArrowUpCircleOutline.svg"
+                alt="Up"
+                @click="mergeUp()"
+            />
+            <span class="direction" @click="mergeUp()">W</span>
+        </div>
+        <h4>Press UpArrow or W</h4>
+    </div>
+    <div class="container">
+        <div class="setup">
+            <!-- 进制 -->
+            <label>n --- Base:</label>
+            <input
+                v-model="base"
+                @focus="removeKeyDown()"
+                @blur="addKeyDown()"
+            />
+            <!-- 网格大小 -->
+            <label>s --- Size:</label>
+            <input
+                v-model="size"
+                @focus="removeKeyDown()"
+                @blur="addKeyDown()"
+            />
+            <!-- 初始数字 -->
+            <label>IN --- Initial Number(s):</label>
+            <input
+                v-model="initialFillableNumbers"
+                @focus="removeKeyDown()"
+                @blur="addKeyDown()"
+            />
+            <!-- 初始数字概率 -->
+            <label>PIN --- Probability of Initial Number(s):</label>
+            <input
+                v-model="numberProbabilityArray"
+                @focus="removeKeyDown()"
+                @blur="addKeyDown()"
+            />
+            <!-- 每次移动后新增数字个数 -->
+            <label>NN --- New Number(s):</label>
+            <input
+                v-model="newNumbers"
+                @focus="removeKeyDown()"
+                @blur="addKeyDown()"
+            />
+            <!-- 获胜数字 -->
+            <label>WN --- Win Number:</label>
+            <input
+                v-model="winNumber"
+                @focus="removeKeyDown()"
+                @blur="addKeyDown()"
+            />
+            <!-- Play -->
+            <div class="play">
+                <img
+                    src="../assets/images/IcBaselinePlayCircleOutline.svg"
+                    alt="Play"
+                />
+                <span>Play</span>
+            </div>
+        </div>
+        <!-- 布局以左 -->
+        <div class="left">
+            <div class="icon">
+                <img
+                    src="../assets/images/IconoirLeftRoundArrow.svg"
+                    alt="Left"
+                    @click="mergeLeft()"
+                />
+                <span class="direction" @click="mergeLeft()">A</span>
+            </div>
+            <h4>Press LeftArrow or A</h4>
+        </div>
+        <!-- 创建 2048 布局 -->
+        <div class="layout">
+            <div
+                v-for="(row, rowIndex) in array"
+                v-bind:key="rowIndex"
+                class="row"
+            >
+                <div
+                    v-for="(column, columnIndex) in row"
+                    v-bind:key="columnIndex"
+                    class="column"
+                    :class="{
+                        class2: row[columnIndex] === 2,
+                        class4: row[columnIndex] === 4,
+                        class8: row[columnIndex] === 8,
+                        class16: row[columnIndex] === 16,
+                        class32: row[columnIndex] === 32,
+                        class64: row[columnIndex] === 64,
+                        class128: row[columnIndex] === 128,
+                        class256: row[columnIndex] === 256,
+                        class512: row[columnIndex] === 512,
+                        class1024: row[columnIndex] === 1024,
+                        class2048: row[columnIndex] === 2048,
+                    }"
+                >
+                    {{ row[columnIndex] }}
+                </div>
+            </div>
+        </div>
+        <!-- 布局以右 -->
+        <div class="right">
+            <div class="icon">
+                <img
+                    src="../assets/images/IconoirRightRoundArrow.svg"
+                    alt="Right"
+                    @click="mergeRight()"
+                />
+                <span class="direction" @click="mergeRight()">D</span>
+            </div>
+            <h4>Press RightArrow or D</h4>
+        </div>
+        <!-- 记录操作步骤 -->
+        <!-- 数据驱动 (record 数组) -->
+        <div class="record">
+            <div v-for="(item, index) in record" v-bind:key="index">
+                {{ item }}
+            </div>
+        </div>
+    </div>
+    <div class="down">
+        <div class="icon">
+            <img
+                src="../assets/images/MdiArrowDownCircleOutline.svg"
+                alt="Down"
+                @click="mergeDown()"
+            />
+            <span class="direction" @click="mergeDown()">S</span>
+        </div>
+        <h4>Press DownArrow or S</h4>
+    </div>
+    <Footer></Footer>
+</template>
+
+<script>
+import Footer from "@/components/footer.vue";
+import { useRouter } from "vue-router";
+
+export default {
+    name: "HomeView",
+    components: {
+        Footer,
+    },
+    data() {
+        return {
+            // 进制
+            base: 2,
+            // 初始数字
+            initialFillableNumbers: [2, 4],
+            // 初始数字概率
+            numberProbabilityArray: [0.9, 0.1],
+            // 初始数组大小
+            size: 4,
+            // 初始数字个数
+            numberOfInitialRandomNumbers: 2,
+            // 每次移动合并后新增数字个数
+            // !!!!!! newNumbers <= numberOfInitialRandomNumbers
+            newNumbers: 1,
+            // 数组
+            array: [],
+            // 获胜数字
+            winNumber: 2048,
+            // undo
+            lastArray: [],
+            // redo
+            nextArray: [],
+            // 一开始 undo redo 均不可执行
+            lastFlag: false,
+            nextFlag: false,
+            // 计数 (步骤)
+            steps: 0,
+            // 分数
+            scores: 0,
+            // 记录数组
+            record: [],
+            // 记录数组最后一个元素
+            lastElementInRecord: "",
+        };
+    },
+    created() {
+        this.$nextTick().then(() => {
+            this.reset();
+        });
+    },
+    mounted() {
+        // 监听键盘事件
+        document.addEventListener("keydown", this.arrowFunction);
+    },
+    computed: {
+        // 由 numberProbabilityArray 生成临时数组
+        // 如 [0.9, 0.1] -> [0.9, 1]
+        tempArray: function () {
+            return this.numberProbabilityArray.map((item, index) =>
+                this.numberProbabilityArray
+                    .slice(0, index + 1)
+                    .reduce(
+                        (previousValue, currentValue) =>
+                            previousValue + currentValue
+                    )
+            );
+        },
+    },
+    methods: {
+        // 箭头函数 (用作监听键盘事件的参数: 回调函数)
+        arrowFunction(e) {
+            e.preventDefault();
+            // 解构
+            const { keyCode } = e;
+            // https://keycode.info/
+            // 红宝书中文第四版 P80
+            switch (keyCode) {
+                // 多分支(case) 同一操作
+                // 38 ArrowUp    87 W
+                case 38:
+                case 87:
+                    this.mergeUp();
+                    // this.check();
+                    break;
+                // 40 ArrowDown    83 S
+                case 40:
+                case 83:
+                    this.mergeDown();
+                    // this.check();
+                    break;
+                // 37 ArrowLeft    65 A
+                case 37:
+                case 65:
+                    this.mergeLeft();
+                    // this.check();
+                    break;
+                // 39 ArrowRight    68 D
+                case 39:
+                case 68:
+                    this.mergeRight();
+                    // this.check();
+                    break;
+                default:
+                    break;
+            }
+        },
+        // 鼠标聚焦 input 时移除键盘事件
+        removeKeyDown() {
+            document.removeEventListener("keydown", this.arrowFunction);
+        },
+        // 鼠标失去焦点 input 时再次添加键盘事件
+        addKeyDown() {
+            document.addEventListener("keydown", this.arrowFunction);
+        },
+        // initializedArray() 生成初始数组
+        initializedArray() {
+            /***********************************************************/
+            // 1 -> randomArray
+            // 2 -> mappedRandomArray
+            // 3 -> initialRandomNumbers
+            // 4. mappedRandomArray + initialRandomNumbers -> resultArray
+            /***********************************************************/
+            // 1. randomArray: 生成元素为随机数 0 ~ 1 的数组 (含 0 不含 1), 长度 numberOfInitialRandomNumbers
+            let randomArray = new Array(this.numberOfInitialRandomNumbers)
+                .fill(0)
+                .map((item) => Math.random());
+            // 2. mappedRandomArray: randomArray 中每个元素按 numberProbabilityArray 映射为 initialFillableNumbers 中的元素
+            let mappedRandomArray = randomArray.map(
+                (randomArrayItem) =>
+                    this.initialFillableNumbers[
+                        this.tempArray.findIndex(
+                            (item) => item >= randomArrayItem
+                        )
+                    ]
+            );
+            // 3. initialRandomNumbers:
+            // 先生成元素为随机数 0 ~ (size*size-1) 的数组
+            // 再乱序排列取 numberOfInitialRandomNumbers 个元素组成数组 initialRandomNumbers
+            let initialRandomNumbers = Array.from(
+                new Array(this.size * this.size - 1).keys()
+            )
+                .sort(() => Math.random() - 0.5)
+                .slice(0, this.numberOfInitialRandomNumbers);
+            // 4. resultArray: 由 mappedRandomArray 和 initialRandomNumbers 生成初始数组
+            let resultArray = Array.from({ length: this.size }, (item) =>
+                new Array(this.size).fill(null)
+            );
+            for (let i = 0; i < initialRandomNumbers.length; i++) {
+                resultArray[Math.floor(initialRandomNumbers[i] / this.size)][
+                    initialRandomNumbers[i] % this.size
+                ] = mappedRandomArray[i];
+            }
+            return resultArray;
+        },
+        // addRandomNumber() 添加随机数
+        addRandomNumber() {
+            this.check();
+            // 1. this.array 空值索引数组 (i 行 j 列)
+            let truthyIndexArray = [];
+            for (let i = 0; i < this.array.length; i++) {
+                for (let j = 0; j < this.array.length; j++) {
+                    if (this.array[i][j] === null) {
+                        truthyIndexArray.push([i, j]);
+                    }
+                }
+            }
+            // 2. 随机数位置数组
+            let positionArray = Array.from(
+                new Array(truthyIndexArray.length).keys()
+            )
+                .sort(() => Math.random() - 0.5)
+                .slice(0, this.newNumbers);
+            // 3. 随机数(个数: this.newNumbers)
+            let randomNumberArray = this.initializedArray()
+                .flat()
+                .filter(Boolean)
+                .slice(0, this.newNumbers);
+            // 4. 更新 this.array
+            for (let i = 0; i < this.newNumbers; i++) {
+                // positionArray[i] 是 truthyIndexArray 中的索引
+                // truthyIndexArray[positionArray[i]] 是 this.array 空值索引
+                // 在 this.array 中插入随机数: randomNumberArray[i]
+                this.array[truthyIndexArray[positionArray[i]][0]][
+                    truthyIndexArray[positionArray[i]][1]
+                ] = randomNumberArray[i];
+            }
+        },
+        // 数组转置
+        // 见 https://segmentfault.com/a/1190000020206880
+        transpose(arr) {
+            // 将数组转置 (不改变 this.array)
+            return arr[0].map(function (column, i) {
+                return arr.map(function (row) {
+                    return row[i];
+                });
+            });
+        },
+        /***********************************************************************/
+        // 向左移动最简单, 向右移动只需在向左移动的代码上加上 reverse()
+        // 向上移动等价于转置后向左移动
+        // 向下移动等价于转置后向右移动
+        // 1. moveUp() 向上移动
+        moveUp() {
+            // 将this.array 转置为 tempArray
+            let tempArray = this.transpose(this.array);
+            // 转置前向上移动  等价于  转置后向左移动
+            for (let i = 0; i < this.size; i++) {
+                let tempArrayOne = tempArray[i].filter(Boolean);
+                let tempArrayTwo = new Array(
+                    this.size - tempArrayOne.length
+                ).fill(null);
+                // 合并两个数组得到 this.array 的第 i 行
+                // tempArrayOne + tempArrayTwo(真值数组在左, 假值数组在右)
+                tempArray[i] = tempArrayOne.concat(tempArrayTwo);
+            }
+            // tempArray 转置为 新的 this.array
+            this.array = JSON.parse(JSON.stringify(this.transpose(tempArray)));
+        },
+        // 2. moveDown() 向下移动
+        moveDown() {
+            // 将this.array 转置为 tempArray
+            let tempArray = this.transpose(this.array);
+            // 转置前向下移动  等价于  转置后向右移动
+            for (let i = 0; i < this.size; i++) {
+                let tempArrayOne = tempArray[i].filter(Boolean);
+                let tempArrayTwo = new Array(
+                    this.size - tempArrayOne.length
+                ).fill(null);
+                // 合并两个数组
+                // tempArrayTwo + tempArrayOne(假值数组在左, 真值数组在右)
+                tempArray[i] = tempArrayTwo.concat(tempArrayOne);
+            }
+            // tempArray 转置为 新的 this.array
+            this.array = JSON.parse(JSON.stringify(this.transpose(tempArray)));
+        },
+        // 3. moveLeft() 向左移动
+        moveLeft() {
+            // i 表示行数
+            for (let i = 0; i < this.size; i++) {
+                // 过滤掉假值(新数组中会保持原有顺序)
+                let tempArrayOne = this.array[i].filter(Boolean);
+                // 待合并的空值数组
+                let tempArrayTwo = new Array(
+                    this.size - tempArrayOne.length
+                ).fill(null);
+                // 合并两个数组得到 this.array 的第 i 行
+                // tempArrayOne + tempArrayTwo(真值数组在左, 假值数组在右)
+                this.array[i] = tempArrayOne.concat(tempArrayTwo);
+            }
+        },
+        // 4. moveRight() 向右移动
+        moveRight() {
+            // i 表示行数
+            for (let i = 0; i < this.size; i++) {
+                // 过滤掉假值(新数组中会保持原有顺序)
+                let tempArrayOne = this.array[i].filter(Boolean);
+                // 待合并的空值数组
+                let tempArrayTwo = new Array(
+                    this.size - tempArrayOne.length
+                ).fill(null);
+                // 合并两个数组
+                // tempArrayTwo + tempArrayOne(假值数组在左, 真值数组在右)
+                this.array[i] = tempArrayTwo.concat(tempArrayOne);
+            }
+        },
+        /*****************************************************************/
+        // 合并 (merge) 的逻辑操作
+        // 1. 先移动非空数字至角落
+        // 2. 再合并相邻且相同的非空数字 (合并后会产生新的空值, 因此须再次移动非空数字至角落)
+        // 3. 再次移动非空数字至角落
+        // 4. 最后生成一定个数的新的随机数
+        /*****************************************************************/
+        // 1. mergeUp() 上 (向上合并)
+        mergeUp() {
+            // 记录合并前的数组 (JSON实现二维数组的深复制) lastArray
+            this.lastArray = JSON.parse(JSON.stringify(this.array));
+            // 首次移动
+            this.moveUp();
+            // 合并
+            for (let i = 0; i < this.size; i++) {
+                // 内层须少循环一次, 避免 j + 1 超出数组索引范围 (j 不含 this.size - 1)
+                for (let j = 0; j < this.size - 1; j++) {
+                    // 须事先判断是否为空位, 否则 null * 2 = 0, null + null =0
+                    if (
+                        this.array[j][i] === this.array[j + 1][i] &&
+                        this.array[j][i] !== null &&
+                        this.array[j + 1][i] !== null
+                    ) {
+                        // 行数小者倍增 (j < (j + 1))
+                        this.array[j][i] *= 2;
+                        // 行数大者置空 ((j + 1) > j)
+                        this.array[j + 1][i] = null;
+                    }
+                }
+            }
+            // 再次移动
+            this.moveUp();
+            // 检查
+            this.check();
+            // 如果数组中无空值, 且该方向上 移动-合并-移动后 数组 和 移动-合并-移动前 数组相同, 则游戏结束
+            if (
+                this.array.flat().filter(Boolean).length ===
+                    this.size * this.size &&
+                JSON.stringify(this.array) === JSON.stringify(this.lastArray)
+            ) {
+                return alert("Game Over!");
+            }
+            // 添加随机数
+            this.addRandomNumber();
+            // 记录移动-合并-移动-添加后的数组 nextArray
+            this.nextArray = JSON.parse(JSON.stringify(this.array));
+            // 计数 + 1
+            ++this.steps;
+            // 追加记录
+            this.record.push("上");
+            // 此时可以 undo, 更改 undoFlag 为 true
+            this.undoFlag = true;
+        },
+        // 2. mergeDown() 下 (向下合并)
+        mergeDown() {
+            // 记录合并前的数组 (JSON实现二维数组的深复制)
+            this.lastArray = JSON.parse(JSON.stringify(this.array));
+            // 首次移动
+            this.moveDown();
+            // 合并
+            // 外层 i 倒置循环
+            // 外层须少循环一次, 避免 i - 1 超出数组索引范围 (i 不含 0)
+            for (let i = this.size - 1; i > 0; i--) {
+                for (let j = 0; j < this.size; j++) {
+                    if (
+                        this.array[i][j] === this.array[i - 1][j] &&
+                        this.array[i][j] !== null &&
+                        this.array[i - 1][j] !== null
+                    ) {
+                        // 行数大者倍增
+                        this.array[i][j] *= 2;
+                        // 行数小者置空
+                        this.array[i - 1][j] = null;
+                    }
+                }
+            }
+            // 再次移动
+            this.moveDown();
+            // 检查
+            this.check();
+            // 如果数组中无空值, 且该方向上 移动-合并-移动后 数组 和 移动-合并-移动前 数组相同, 则游戏结束
+            if (
+                this.array.flat().filter(Boolean).length ===
+                    this.size * this.size &&
+                JSON.stringify(this.array) === JSON.stringify(this.lastArray)
+            ) {
+                return alert("Game Over!");
+            }
+            // 添加随机数
+            this.addRandomNumber();
+            // 记录移动-合并-移动-添加后的数组 nextArray
+            this.nextArray = JSON.parse(JSON.stringify(this.array));
+            // 计数 + 1
+            ++this.steps;
+            // 追加记录
+            this.record.push("下");
+            // 此时可以 undo, 更改 undoFlag 为 true
+            this.undoFlag = true;
+        },
+        // 3. mergeLeft() 左 (向左合并)
+        mergeLeft() {
+            // 记录合并前的数组 (JSON实现二维数组的深复制)
+            this.lastArray = JSON.parse(JSON.stringify(this.array));
+            // 首次移动
+            this.moveLeft();
+            // 合并
+            for (let i = 0; i < this.size; i++) {
+                // 内层须少循环一次, 避免 j + 1 超出数组索引范围 (j 不含 this.size - 1)
+                for (let j = 0; j < this.size - 1; j++) {
+                    if (
+                        this.array[i][j] === this.array[i][j + 1] &&
+                        this.array[i][j] !== null &&
+                        this.array[i][j + 1] !== null
+                    ) {
+                        // 列数小者倍增
+                        this.array[i][j] *= 2;
+                        // 列数大者置空
+                        this.array[i][j + 1] = null;
+                    }
+                }
+            }
+            // 再次移动
+            this.moveLeft();
+            // 检查
+            this.check();
+            // 如果数组中无空值, 且该方向上 移动-合并-移动后 数组 和 移动-合并-移动前 数组相同, 则游戏结束
+            if (
+                this.array.flat().filter(Boolean).length ===
+                    this.size * this.size &&
+                JSON.stringify(this.array) === JSON.stringify(this.lastArray)
+            ) {
+                return alert("Game Over!");
+            }
+            // 添加随机数
+            this.addRandomNumber();
+            // 记录移动-合并-移动-添加后的数组 nextArray
+            this.nextArray = JSON.parse(JSON.stringify(this.array));
+            // 计数 + 1
+            ++this.steps;
+            // 追加记录
+            this.record.push("左");
+            // 此时可以 undo, 更改 undoFlag 为 true
+            this.undoFlag = true;
+        },
+        // 4.  mergeRight() 右 (向右合并)
+        mergeRight() {
+            // 记录合并前的数组 (JSON实现二维数组的深复制)
+            this.lastArray = JSON.parse(JSON.stringify(this.array));
+            // 首次移动
+            this.moveRight();
+            // 合并
+            for (let i = 0; i < this.size; i++) {
+                // 内层 j 倒置循环
+                // 内层须少循环一次, 避免 j - 1 超出数组索引范围 (j 不含 0)
+                for (let j = this.size - 1; j > 0; j--) {
+                    if (
+                        this.array[i][j] === this.array[i][j - 1] &&
+                        this.array[i][j] !== null &&
+                        this.array[i][j - 1] !== null
+                    ) {
+                        // 列数大者倍增
+                        this.array[i][j] *= 2;
+                        // 列数小者置空
+                        this.array[i][j - 1] = null;
+                    }
+                }
+            }
+            // 再次移动
+            this.moveRight();
+            // 检查
+            this.check();
+            // 如果数组中无空值, 且该方向上 移动-合并-移动后 数组 和 移动-合并-移动前 数组相同, 则游戏结束
+            if (
+                this.array.flat().filter(Boolean).length ===
+                    this.size * this.size &&
+                JSON.stringify(this.array) === JSON.stringify(this.lastArray)
+            ) {
+                return alert("Game Over!");
+            }
+            // 添加随机数
+            this.addRandomNumber();
+            // 记录移动-合并-移动-添加后的数组 nextArray
+            this.nextArray = JSON.parse(JSON.stringify(this.array));
+            // 计数 + 1
+            ++this.steps;
+            // 追加记录
+            this.record.push("右");
+            // 此时可以 undo, 更改 undoFlag 为 true
+            this.undoFlag = true;
+        },
+        /*****************************************************************/
+        // undo() 返回上一步(撤回)
+        undo() {
+            if (this.undoFlag) {
+                // 回退到合并前的数组 (JSON实现二维数组的深复制)
+                this.array = JSON.parse(JSON.stringify(this.lastArray));
+                // 删除记录数组最后一个元素 pop()
+                // 使用 lastElementInRecord 记录 record 中被删除的最后一个元素
+                this.lastElementInRecord = this.record.pop();
+            }
+            // 还原 undoFlag 为默认的 false
+            this.undoFlag = false;
+            // 同时设置 redoFlag 为 true
+            this.redoFlag = true;
+        },
+        redo() {
+            if (this.redoFlag) {
+                // 撤销回退
+                this.array = JSON.parse(JSON.stringify(this.nextArray));
+                // 重新添加被删除的最后一个元素
+                this.record.push(this.lastElementInRecord);
+            }
+            // 还原 redoFlag 为默认的 false
+            this.redoFlag = false;
+            // 同时设置 undoFlag 为 true
+            this.undoFlag = true;
+        },
+        exit() {
+            // 所有元素置空
+            this.array = Array.from({ length: this.size }, (item) =>
+                new Array(this.size).fill(null)
+            );
+            // 重置记录数组
+            this.record = [];
+            // 重置计数
+            this.steps = 0;
+        },
+        // reset() 重置游戏
+        reset() {
+            this.array = Array.from({ length: this.size }, (item) =>
+                new Array(this.size).fill(null)
+            );
+            this.array = this.initializedArray();
+            // 重置记录数组
+            this.record = [];
+            // 重置计数
+            this.steps = 0;
+        },
+        // check() 检查是否含有 2048, 如果有则弹窗提示 You Win!
+        check() {
+            // 如果数组中含有 this.winNumber, 则弹窗提示 You Win!
+            if (this.array.flat().some((item) => item === this.winNumber)) {
+                return alert("You Win!");
+            }
+            // 如果不能再次合并 !false <=> true
+            // 且数组中无空值, 即数组中非空值个数等于 this.size * this.size
+            if (
+                !this.checkMergeOrNot() &&
+                this.array.flat().filter(Boolean).length ===
+                    this.size * this.size
+            ) {
+                return alert("Game Over!");
+            }
+        },
+        // 检查是否可以再次合并
+        // true 表示可以再次合并
+        // false 表示不能再次合并
+        checkMergeOrNot() {
+            // 外层循环和内层循环均须少一次循环
+            for (let i = 0; i < this.size - 1; i++) {
+                for (let j = 0; j < this.size - 1; j++) {
+                    // 从左上角 this.array[0][0] 开始判断任意相邻两数是否相同
+                    // this.array[i][j] 相邻数 i 行 j 列
+                    // 右侧 this.array[i][j + 1] i 行 j+1 列
+                    // 下方 this.array[i + 1][j] i+1 行 j 列
+                    // this.array[i][j] 等于 右侧 或 下方 数字, 即表明可以再次合并
+                    if (
+                        this.array[i][j] !== null &&
+                        (this.array[i][j] === this.array[i][j + 1] ||
+                            this.array[i][j] === this.array[i + 1][j])
+                    ) {
+                        // 可以再次合并
+                        return true;
+                    }
+                }
+            }
+            // 不能再次合并
+            return false;
+        },
+    },
+    setup() {
+        let router = useRouter(); // router 全局路由对象
+        let gotoGetStarted = () => {
+            // 跳转路由
+            router.push("/get-started");
+        };
+        let gotoAbout = () => {
+            // 跳转路由
+            router.push("/about");
+        };
+        let gotoQA = () => {
+            // 跳转路由
+            router.push("/question-and-answer");
+        };
+        return {
+            gotoGetStarted,
+            gotoAbout,
+            gotoQA,
+        };
+    },
+};
+</script>
+
+<style lang="scss" scoped>
+// 字体
+@font-face {
+    font-family: GreatVibes;
+    src: url(/src/assets/fonts/GreatVibes.otf);
+}
+// 定义每个格子的尺寸
+$size: 40px;
+// 定义边框颜色
+$borderColor: #01cccc;
+// 定义图标尺寸
+$width-height: 32px;
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    & div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        & img {
+            width: $width-height;
+            height: $width-height;
+        }
+        & button {
+            // 高度同图标尺寸 $width-height
+            height: $width-height;
+            margin-left: 10px;
+            font-family: Merriweather-Regular;
+            cursor: pointer;
+            // GitHub new issue 背景色 #2da44e 文本色 white
+            border: 1px #2da44e solid;
+            border-radius: 0.5rem;
+            color: white;
+            background: #2da44e;
+        }
+    }
+    & .span-divider {
+        width: 2px;
+        background: #7057ff;
+        margin: auto 20px auto;
+    }
+    & a {
+        height: $width-height;
+    }
+}
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.column {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.setup {
+    display: grid;
+    // 行高
+    grid-template-rows: repeat(7, 30px);
+    // 列宽
+    grid-template-columns: 1fr 1fr;
+    // 间隔
+    grid-gap: 1rem;
+    justify-items: center;
+    align-items: center;
+    & .play {
+        display: flex;
+        grid-column: span 2;
+        & span {
+            min-width: 55px;
+        }
+    }
+    & input {
+        width: 50px;
+    }
+}
+.left {
+    margin-right: 30px;
+    // 设固定宽度使 2048 布局水平居中
+    width: 200px;
+}
+.right {
+    margin-left: 30px;
+    width: 200px;
+}
+.record {
+    display: flex;
+    flex-direction: column;
+
+    height: 200px;
+    margin-left: 30px;
+    overflow-y: auto;
+    & div {
+        width: 40px;
+        background-color: #dc143c;
+        color: #fff;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        border-radius: 0.5rem;
+    }
+}
+.steps-scores {
+    margin-bottom: 10px;
+    & span {
+        margin: 10px 0;
+        // 最小宽度
+        min-width: 32px;
+        // 最大宽度
+        max-width: 100px;
+    }
+}
+.up {
+    margin-bottom: 30px;
+}
+.down {
+    margin-top: 30px;
+}
+.icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.features {
+    display: grid;
+    // 宽度随内容自适应
+    width: fit-content;
+    // grid 容器水平居中
+    margin: 50px auto 50px;
+    // 行高
+    grid-template-rows: repeat(2, 50px);
+    // 列宽
+    grid-template-columns: repeat(4, 100px);
+    // 子元素水平居中
+    justify-items: center;
+    // 子元素垂直居中
+    align-items: center;
+    // undo redo 宽度
+    & .undo,
+    & .redo,
+    & .exit {
+        width: 55px;
+    }
+    // replay 宽度
+    & .replay {
+        width: 70px;
+    }
+    & span {
+        margin-left: 0;
+    }
+}
+h2 {
+    font-size: 2rem;
+    width: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    background: linear-gradient(to right, #5d26c1, #a17fe0, #59c173);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+h3 {
+    font-family: GreatVibes;
+    font-size: 2rem;
+}
+// 设置 h4 下外边距 0 (使得父元素整体随 2048 网格布局垂直居中)
+h4 {
+    margin-bottom: 0;
+}
+/***********************************************/
+// 整体思路: 先加上所有的边框, 再处理重叠的边框
+// 1. 给每个数字所在位置加四周边框 (中间横竖边框线均重叠)
+.column {
+    // 宽高尺寸 $size
+    width: $size;
+    height: $size;
+    border: 1px solid;
+    border-color: $borderColor;
+}
+// 2. 去除竖直方向重叠的边框
+// 通用兄弟组合器 (匹配所有跟随在指定元素之后的兄弟元素)
+// 每对相邻盒子 左边框宽度置0
+.column ~ .column {
+    border-left-width: 0;
+}
+// 3. 去除水平方向重叠的边框
+.row ~ .row .column {
+    border-top-width: 0;
+}
+/***********************************************/
+
+// 布局 边框线
+// .row :nth-child(n) {
+//     border-left: 2px solid;
+//     border-top: 2px solid;
+// }
+// 这里伪类选择器中数字 应随 size 同步变化 (目前难以做到, 故放弃这一思路: 先画绝大部分边框线最后补充缺少的边框线)
+// .row :nth-child(4) {
+//     border-right: 2px solid;
+// }
+// .layout {
+//     // 画下底边框线
+//     border-bottom: 2px solid;
+// }
+// .column {
+//     width: 50px;
+//     height: 50px;
+//     // 暴力添加边框
+//     border: 2px solid;
+// }
+
+img {
+    cursor: pointer;
+}
+span {
+    // inline-block
+    display: inline-block;
+    text-align: center;
+    margin-left: 10px;
+    width: $width-height;
+    height: $width-height;
+    // line-height 同 height 即可垂直居中
+    line-height: $width-height;
+    // pornhub 背景色 #ff9900 文本色 white
+    // GitHubgood first issue 背景色 #7057ff 文本色 white
+    background-color: #7057ff;
+    color: white;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+// 定义数字显示样式 (2 4 8 16 32 64 128 256 512 1024 2048)
+.class2 {
+    background: #00ffbb;
+}
+.class4 {
+    background: #4c8ffb;
+    color: white;
+}
+.class8 {
+    // 莓酱红 http://zhongguose.com/#meijianghong
+    background: #fa5d19;
+}
+.class16 {
+    // 鹦鹉绿 http://zhongguose.com/#yingwulv
+    background: #5bae23;
+}
+.class32 {
+    background: #147df5;
+}
+.class64 {
+    background: #0aefff;
+}
+.class128 {
+    background: #0aff99;
+}
+.class256 {
+    background: #a1ff0a;
+}
+.class512 {
+    background: #deff0a;
+}
+.class1024 {
+    background: #ffd300;
+}
+.class2048 {
+    background: #ff8700;
+}
+</style>
