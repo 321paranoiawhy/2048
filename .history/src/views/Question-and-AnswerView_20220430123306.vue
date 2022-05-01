@@ -1,0 +1,93 @@
+<template>
+    <div class="QA">
+        <!-- <div class="back">
+            <img src="../assets/images/IcBaselineArrowBackIos.svg" alt="" />
+            <span>Back to About</span>
+        </div> -->
+        <div class="back-forward">
+            <div @click="gotoAbout">
+                <img src="../assets/images/IcBaselineArrowBackIos.svg" alt="" />
+                <span>Back to About</span>
+            </div>
+            <div @click="gotoHome">
+                <span>Forward to Home</span>
+                <img
+                    src="../assets/images/IcBaselineArrowForwardIos.svg"
+                    alt=""
+                />
+            </div>
+        </div>
+        <h2>Q 1 : Can I undo the previous action?</h2>
+        <h3>
+            A 1 : Of course you can but only one action can be undone. So just
+            be cautious and have fun.
+        </h3>
+        <h2>Q 2 : Can I share the game result to social media?</h2>
+        <h3>
+            A 2 : Yes you can share it to social media once you have already
+            logged in. For examples, QQ, WeChat, Twitter, Facebook and others
+            are provided for your convenience.
+        </h3>
+        <h2>Q 3 : Are there ads in this website?</h2>
+        <h3>
+            A 3 : No, we will never show ads in this website. All of you can
+            enjoy free the website without ads bothering.
+        </h3>
+        <h2>Q 4 : Is there anything I can help with?</h2>
+        <h3>
+            A 4 : Certainly, we are always open to any suggestions and feedback.
+            Even you can get involved and build together. GitHub Source Code :
+            <a href="">https://github.com/321paranoiawhy/2048</a>
+        </h3>
+    </div>
+</template>
+
+<script>
+import { useRouter } from "vue-router";
+export default {
+    setup() {
+        let router = useRouter(); // router 全局路由对象
+        let gotoAbout = () => {
+            // 跳转路由
+            router.push("/about");
+        };
+        let gotoHome = () => {
+            // 跳转路由
+            router.push("/");
+        };
+        return {
+            gotoAbout,
+            gotoHome,
+        };
+    },
+};
+</script>
+
+<style lang="scss" scoped>
+.QA {
+    width: calc(50vw);
+    margin: 30px auto;
+    & h3 a {
+        text-decoration: green wavy underline;
+        color: #2c3e45;
+    }
+}
+div .back-forward {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(50vw);
+    margin: 30px auto;
+    & div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+}
+h2::first-letter {
+    // 克莱因蓝
+    color: #002fa7;
+    font-size: 2.5rem;
+}
+</style>
