@@ -1166,87 +1166,68 @@ span {
 }
 // 定义数字显示样式 (如 2 4 8 16 32 64 128 256 512 1024 2048)
 // https://github.com/gabrielecirulli/2048/blob/master/style/main.css#L331
-// https://github.com/226YZY/my2048game/blob/main/js/main2048.js#L221
 .class1 {
+    // background: #eee4da;
     background: #eee4da;
-    color: #776e65;
+    color: ;
 }
 .class2 {
     background: #ede0c8;
-    color: #776e65;
 }
 .class3 {
     background: #f2b179;
-    color: #f8f5f1;
 }
 .class4 {
     background: #f59563;
-    color: #f8f5f1;
 }
 .class5 {
     background: #f67c5f;
-    color: #f8f5f1;
 }
 .class6 {
     background: #f65e3b;
-    color: #f8f5f1;
 }
 .class7 {
     background: #edcf72;
-    color: #f8f5f1;
 }
 .class8 {
     background: #edcc61;
-    color: #f8f5f1;
 }
 .class9 {
     background: #edc850;
-    color: #f8f5f1;
 }
 .class10 {
     background: #edc53f;
-    color: #f8f5f1;
 }
 .class11 {
     background: #edc22e;
-    color: #f8f5f1;
 }
-// TODO
+
 // class12 ~ class20 暂定使用一个背景色
 .class12 {
     background: #a6c;
-    color: #f8f5f1;
 }
 .class13 {
     background: #93c;
-    color: #f8f5f1;
 }
 .class14 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 .class15 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 .class16 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 .class17 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 .class18 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 .class19 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 .class20 {
     background: #3c3a32;
-    color: #f8f5f1;
 }
 </style>

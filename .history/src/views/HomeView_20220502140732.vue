@@ -1168,6 +1168,7 @@ span {
 // https://github.com/gabrielecirulli/2048/blob/master/style/main.css#L331
 // https://github.com/226YZY/my2048game/blob/main/js/main2048.js#L221
 .class1 {
+    // background: #eee4da;
     background: #eee4da;
     color: #776e65;
 }
@@ -1211,7 +1212,7 @@ span {
     background: #edc22e;
     color: #f8f5f1;
 }
-// TODO
+
 // class12 ~ class20 暂定使用一个背景色
 .class12 {
     background: #a6c;
